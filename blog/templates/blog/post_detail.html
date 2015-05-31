@@ -1,4 +1,51 @@
 {% extends 'layout.html' %}
+{% load bootstrap3 %}
+
+{% block extra_head %}
+<style>
+#comment_list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#comment_list li {
+    margin: 10px 0;
+}
+#comment_list img {
+    float: left;
+}
+#comment_list .message {
+    font-size: 1.4em;
+}
+#comment_list .updated_at {
+    font-style: italic;
+    color: #999;
+}
+#comment_list .clear {
+    clear: both;
+}
+</style>
+<script>
+$(function() {
+    $(".comment-delete-btn").click(function() {
+        var url = $(this).attr('href');
+        var wrapper_id = $(this).data('wrapper-id');
+        $.ajax({
+            url: url,
+            method: "POST"
+        }).done(function() {
+            $("#" + wrapper_id).remove();
+        }).fail(function(response) {
+            if ( response.status == 404 )
+                $("#" + wrapper_id).remove();
+            else
+                alert("에이! 실패 (" + response.status + ")");
+        });
+        return false;
+    });
+});
+</script>
+{% endblock %}
 
 {% block content %}
     <h1>{{ post.title }}</h1>
@@ -8,4 +55,36 @@
     {% endif %}
 
     {{ post.content|linebreaks }}
+
+    <hr/>
+
+
+    <form action="{% url "blog:comment_new" post.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input type="submit" value="댓글달기" class="btn btn-primary btn-block" />
+        <button class="btn btn-primary btn-block">
+            <i class="glyphicon glyphicon-pencil"></i>
+            댓글달기
+        </button>
+    </form>
+
+    <ul id="comment_list">
+    {% for comment in post.comment_set.all %}
+        <li id="comment_{{ comment.id }}">
+            {% if comment.photo %}
+                <img src="{{ comment.photo.url }}" style="width: 50px;" />
+            {% endif %}
+            <span class="message">{{ comment.message|safe }}</span>
+            <a href="{% url "blog:comment_edit" post.id comment.id %}" class="updated_at">{{ comment.updated_at }}</a>
+
+            <a href="{% url "blog:comment_delete" post.id comment.id %}"
+                data-wrapper-id="comment_{{ comment.id }}"
+                class="text-danger comment-delete-btn">X</a>
+
+            <div class="clear"></div>
+        </li>
+    {% endfor %}
+    </ul>
+
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="alert alert-danger">
+낙장불입 !!! 정말 삭제하시겠습니까?
+</div>
+
+<form action="" method="post">
+{% csrf_token %}
+<input type="submit" value="삭제하겠습니다." class="btn btn-danger btn-lg" />
+</form>
+
+{% endblock %}

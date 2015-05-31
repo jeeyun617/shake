@@ -11,3 +11,14 @@ class Post(models.Model):
     photo = models.ImageField(upload_to=random_name_upload_to, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '[{}] {}'.format(self.id, self.title)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post)
+    message = models.TextField()
+    photo = models.ImageField(upload_to=random_name_upload_to, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
